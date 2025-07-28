@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project-bootstrap"
+version = "0.0.1"
+authors = [
+  { name="roobert", email="roobert@gmail.com" },
+]
+description = ""
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/roobert/project-bootstrap"
+"Bug Tracker" = "https://github.com/roobert/project-bootstrap/issues"
+
+[tool.setuptools]
+py-modules = ["project_bootstrap"]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
