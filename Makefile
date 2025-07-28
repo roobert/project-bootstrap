@@ -4,7 +4,7 @@ clean:
 	rm -rf dist/
 
 build: clean
-	uv build --index-strategy unsafe-best-match
+	uv build
 
 patch:
 	uv version --bump patch
@@ -16,10 +16,10 @@ major:
 	uv version --bump major
 
 upload-test: build
-	uv publish --index testpypi dist/*
+	uv publish --repository testpypi --token ${TWINE_TEST_PYPI_TOKEN} dist/*
 
 upload: build
-	uv publish dist/*
+	uv publish --token ${TWINE_PYPI_TOKEN} dist/*
 
 test:
 	uv sync; rm -rf refs; ref-fetch pip
