@@ -22,7 +22,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/roobert/project-bootstrap/issues"
 
 [project.scripts]
-ref-fetch = "ref_fetch:main"
+project-bootstrap = "project_bootstrap:main"
 
 [tool.setuptools]
 py-modules = ["project_bootstrap"]
