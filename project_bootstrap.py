@@ -12,7 +12,6 @@ from typing import Dict, Optional
 import requests
 from bs4 import BeautifulSoup
 
-
 # Suppress the specific NotOpenSSLWarning by its message content.
 # This is done before importing 'requests' to prevent the warning from
 # being triggered upon its import of urllib3.
@@ -20,13 +19,6 @@ warnings.filterwarnings(
     "ignore",
     message="urllib3 v2 only supports OpenSSL 1.1.1+",
 )
-
-
-
-
-
-
-
 
 def get_latest_node_version() -> Optional[str]:
     """Fetches the latest stable Node.js version."""
@@ -188,6 +180,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # Note: This script's dependencies are listed in requirements.txt
-    # You can install them with: pip install -r requirements.txt
     main()
