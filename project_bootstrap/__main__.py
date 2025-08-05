@@ -12,86 +12,22 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 def get_latest_node_version() -> Optional[str]:
-    """
-    Fetches the latest stable Node.js version using nvm.
-    Checks if nvm is installed, offers to install it if not.
-    If installed, ensures it's up-to-date and fetches the latest version.
-    """
-    if not is_nvm_installed():
-        if prompt_to_install_nvm():
-            # After installation, we need to source nvm, which is tricky in a script.
-            # For now, we'll ask the user to re-run.
-            print("nvm installed. Please re-run the script in a new terminal.", file=sys.stderr)
-            sys.exit(1)
-        else:
-            print("nvm is required to determine the latest Node.js version.", file=sys.stderr)
-            return None
-    
-    return fetch_latest_node_version_with_nvm()
-
-
-def find_nvm_sh() -> Optional[str]:
-    """Finds the nvm.sh script in common locations."""
-    # Homebrew on Apple Silicon
-    brew_prefix_arm = "/opt/homebrew/opt/nvm/nvm.sh"
-    if os.path.exists(brew_prefix_arm):
-        return brew_prefix_arm
-    
-    # Homebrew on Intel
-    brew_prefix_intel = "/usr/local/opt/nvm/nvm.sh"
-    if os.path.exists(brew_prefix_intel):
-        return brew_prefix_intel
-
-    # Default nvm install script location
-    default_path = os.path.expanduser("~/.nvm/nvm.sh")
-    if os.path.exists(default_path):
-        return default_path
-        
-    return None
-
-
-def is_nvm_installed() -> bool:
-    """Checks if nvm is installed by looking for nvm.sh."""
-    return find_nvm_sh() is not None
-
-
-def prompt_to_install_nvm() -> bool:
-    """Prompts the user to install nvm using Homebrew."""
-    answer = input("nvm is not installed. Would you like to install it now using Homebrew? (y/n) ")
-    if answer.lower() == 'y':
-        try:
-            subprocess.run(['brew', 'install', 'nvm'], check=True)
-            # The user will need to configure their shell to use nvm
-            print("\nTo finish installation, add the following to your shell's startup file (e.g., ~/.zshrc):")
-            print('  export NVM_DIR="$HOME/.nvm"')
-            print('  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"')
-            print('  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"')
-            return True
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            print(f"Error installing nvm: {e}", file=sys.stderr)
-            return False
-    return False
-
-
-def fetch_latest_node_version_with_nvm() -> Optional[str]:
-    """Fetches the latest node version using nvm ls-remote."""
-    nvm_sh_path = find_nvm_sh()
-    if not nvm_sh_path:
-        print("Could not find nvm.sh. This should not happen if is_nvm_installed() is checked first.", file=sys.stderr)
-        return None
+    """Fetches the latest stable Node.js version."""
     try:
-        # nvm is a shell function, so we need to source it before running.
-        command = f'. "{nvm_sh_path}" && nvm ls-remote --lts | tail -n 1 | grep -o "v[0-9]*\\.[0-9]*\\.[0-9]*"'
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True, executable='/bin/zsh')
-        version = result.stdout.strip()
-        if version.startswith('v'):
-            return version[1:]
-        return version
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Error fetching Node.js version with nvm: {e}", file=sys.stderr)
-        if isinstance(e, subprocess.CalledProcessError):
-            print(f"nvm output:\n{e.stderr}", file=sys.stderr)
-        return None
+        response = requests.get("https://nodejs.org/en/download/current")
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # The version is now in a button's span, e.g., <span>v24.5.0 (Current)</span>
+        button = cast(Optional[Tag], soup.find('button', {'aria-label': 'Version'}))
+        if button:
+            span = cast(Optional[Tag], button.find('span'))
+            if span and span.string:
+                match = re.search(r'v(\d+\.\d+\.\d+)', span.string)
+                if match:
+                    return match.group(1)
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching Node.js version: {e}", file=sys.stderr)
+    return None
 
 
 def get_latest_python_version() -> Optional[str]:

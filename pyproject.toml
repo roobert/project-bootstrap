@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "project-bootstrap"
-version = "0.0.2"
+version = "0.0.9"
 authors = [
   { name="roobert", email="roobert@gmail.com" },
 ]
@@ -17,6 +17,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+dependencies = [
+    "requests",
+    "beautifulsoup4",
+    "urllib3<2",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/roobert/project-bootstrap"
 "Bug Tracker" = "https://github.com/roobert/project-bootstrap/issues"
@@ -25,4 +31,7 @@ classifiers = [
 project-bootstrap = "project_bootstrap:main"
 
 [tool.setuptools]
-py-modules = ["project_bootstrap"]
+packages = ["project_bootstrap"]
+
+[tool.setuptools.package-data]
+project_bootstrap = ["templates/*.md"]
